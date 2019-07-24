@@ -10,9 +10,9 @@ with open("README.rst") as readme_file:
 with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = ["zocalo"]
+requirements = ["zocalo", "procrunner"]
 setup_requirements = []
-test_requirements = ["mock", "pytest"]
+test_requirements = ["mock", "pytest", "workflows"]
 
 needs_pytest = {"pytest", "test", "ptr"}.intersection(sys.argv)
 if needs_pytest:
@@ -37,7 +37,7 @@ setup(
     entry_points={
         # Add service here
         # "workflows.service": ["Service = zocalo-dls.service.myservice:ServiceClass"],
-        # "zocalo.wrapper": ["dummy = zocalo-dls.wrapper.mywrapper:WrapperClass"],
+        "zocalo.wrapper": ["generic_process = zocadls.wrapper.generic:ProcessRegisterWrapper"]
     },
     install_requires=requirements,
     license="BSD license",
