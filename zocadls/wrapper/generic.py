@@ -15,7 +15,7 @@ class ProcessRegisterWrapper(BaseWrapper):
         command = params["wrapped_commands"]
         logger.info('Command: %s', ' '.join(command))
         result = procrunner.run(command)
-        logger.warning("Command successful, took %.1f seconds", result["runtime"])
+        logger.info("Command successful, took %.1f seconds", result["runtime"])
      
         if "filename" in params:
             self.record_result(params["filename"], "Result")

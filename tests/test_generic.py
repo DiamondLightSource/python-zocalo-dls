@@ -16,7 +16,6 @@ def test_process_wrapper(mock_runner, mock_wrapper):
     logpath = "test.log"
 
     fh = tempfile.NamedTemporaryFile()
-    fh.write(b'Hello world!')
     params = {"wrapped_commands" : command,
               "filename" : fh.name,
               "logname" : logpath}
@@ -28,7 +27,7 @@ def test_process_wrapper(mock_runner, mock_wrapper):
     wrapper.set_recipe_wrapper(mock_wrapper)
     wrapper.run()
 
-    assert mock_runner.called
+    mock_runner.assert_called_with(command)
     p,f = os.path.split(fh.name)
     payload = {'file_path': p,
           'file_name': f,
