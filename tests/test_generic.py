@@ -13,12 +13,13 @@ def test_process_wrapper(mock_runner, mock_wrapper):
     mock_runner.return_value = {"runtime" : 5.0}
 
     command = "ls"
-    logpath = "test.log"
 
     fh = tempfile.NamedTemporaryFile()
+    fh_log = tempfile.NamedTemporaryFile()
+
     params = {"wrapped_commands" : command,
               "filename" : fh.name,
-              "logname" : logpath}
+              "logname" : fh_log.name}
 
     mock_wrapper.recipe_step = {"job_parameters" : params} 
     mock_wrapper.recwrap.send_to.return_value = None
@@ -32,4 +33,13 @@ def test_process_wrapper(mock_runner, mock_wrapper):
     payload = {'file_path': p,
           'file_name': f,
           'file_type': "Result"};
-    mock_wrapper.send_to.assert_called_with("result-individual-file", payload)
+
+    pl,fl = os.path.split(fh_log.name)
+    payloadl = {'file_path': pl,
+          'file_name': fl,
+          'file_type': "Log"};
+
+    mes = "result-individual-file"
+
+    calls = [mock.call(mes,payload), mock.call(mes,payloadl)]
+    mock_wrapper.send_to.assert_has_calls(calls)
