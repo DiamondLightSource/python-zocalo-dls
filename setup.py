@@ -9,7 +9,7 @@ with open("README.rst") as readme_file:
 with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = ["zocalo", "procrunner"]
+requirements = ["ispyb", "procrunner", "zocalo"]
 setup_requirements = []
 test_requirements = ["mock", "pytest"]
 
@@ -34,6 +34,7 @@ setup(
         "workflows.service": [
             # to add a service:
             # "user_facing_service_name = zocalo_dls.service.myservice:ServiceClass"
+            "ISPyB = zocalo_dls.service.ispybsvc:ISPyB"
         ],
         "zocalo.wrapper": [
             # to add a wrapper:
