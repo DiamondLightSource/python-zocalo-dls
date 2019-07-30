@@ -1,0 +1,14 @@
+version: 1
+update_configs:
+  - package_manager: "python"
+    directory: "/"
+    update_schedule: "monthly"
+    ignored_updates:
+      # pytest 5 requires Python 3
+      - match:
+          dependency_name: "pytest"
+          version_requirement: ">=5"
+      # sphinx 2 requires Python 3
+      - match:
+          dependency_name: "Sphinx"
+          version_requirement: ">=2"

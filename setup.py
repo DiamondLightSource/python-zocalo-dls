@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
 from setuptools import setup, find_packages
 
 with open("README.rst") as readme_file:
@@ -12,11 +11,7 @@ with open("HISTORY.rst") as history_file:
 
 requirements = ["zocalo", "procrunner"]
 setup_requirements = []
-test_requirements = ["mock", "pytest", "workflows"]
-
-needs_pytest = {"pytest", "test", "ptr"}.intersection(sys.argv)
-if needs_pytest:
-    setup_requirements.append("pytest-runner")
+test_requirements = ["mock", "pytest"]
 
 setup(
     author="Diamond Light Source",
@@ -35,16 +30,23 @@ setup(
     ],
     description="Standard components for automated data processing with Zocalo at Diamond Light Source",
     entry_points={
-        # Add service here
-        # "workflows.service": ["Service = zocalo-dls.service.myservice:ServiceClass"],
-        "zocalo.wrapper": ["generic_process = zocadls.wrapper.generic:ProcessRegisterWrapper"]
+        "libtbx.precommit": ["zocalo_dls = zocalo_dls"],
+        "workflows.service": [
+            # to add a service:
+            # "user_facing_service_name = zocalo_dls.service.myservice:ServiceClass"
+        ],
+        "zocalo.wrapper": [
+            # to add a wrapper:
+            # "user_facing_wrapper_name = zocalo_dls.wrapper.mywrapper:WrapperClass"
+            "generic_process = zocalo_dls.wrapper.generic:ProcessRegisterWrapper"
+        ],
     },
     install_requires=requirements,
     license="BSD license",
     long_description=readme + "\n\n" + history,
     include_package_data=True,
     keywords="zocalo dls diamond",
-    name="zocalo-dls",
+    name="zocalo_dls",
     packages=find_packages(),
     setup_requires=setup_requirements,
     test_suite="tests",
