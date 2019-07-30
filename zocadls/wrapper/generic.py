@@ -24,11 +24,11 @@ class ProcessRegisterWrapper(BaseWrapper):
             self.record_result(params["logname"], "Log")
         return True
 
-    def record_result(self,path,type):
+    def record_result(self,path,file_type):
         if os.path.isfile(path):
             p,f = os.path.split(path)
             self.record_result_individual_file({'file_path': p,
                 'file_name': f,
-                'file_type': "Result"})
+                'file_type': file_type})
         else:
             logger.warning("No file found at %s", path)
