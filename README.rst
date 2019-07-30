@@ -22,6 +22,10 @@ Diamond-specific Zocalo Tools
            :target: https://lgtm.com/projects/g/DiamondLightSource/python-zocalo-dls/alerts/
            :alt: Total alerts
 
+.. image:: https://readthedocs.org/projects/DiamondLightSource-python-zocalo-dls/badge/?version=latest
+           :target: https://python-zocalo-dls.readthedocs.io/en/latest/?badge=latest
+           :alt: Documentation status
+
 .. image:: https://img.shields.io/pypi/pyversions/zocalo-dls.svg
            :target: https://pypi.org/project/zocalo-dls/
            :alt: Supported Python versions
