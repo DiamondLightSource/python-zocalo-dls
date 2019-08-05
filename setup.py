@@ -36,7 +36,7 @@ setup(
             # "user_facing_service_name = zocalo_dls.service.myservice:ServiceClass"
             "ISPyB = zocalo_dls.service.ispybsvc:ISPyB"
         ],
-        "zocalo.wrapper": [
+        "zocalo.wrappers": [
             # to add a wrapper:
             # "user_facing_wrapper_name = zocalo_dls.wrapper.mywrapper:WrapperClass"
             "generic_process = zocalo_dls.wrapper.generic:ProcessRegisterWrapper"
