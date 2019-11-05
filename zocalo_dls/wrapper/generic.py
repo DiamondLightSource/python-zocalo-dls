@@ -17,6 +17,12 @@ class ProcessRegisterWrapper(BaseWrapper):
         result = procrunner.run(command)
         logger.info("Command successful, took %.1f seconds", result["runtime"])
 
+        if result["exitcode"]:
+            self.failure()
+            return
+        else:
+            self.success()
+
         if "filename" in params:
             self.record_result(params["filename"], "Result")
 
