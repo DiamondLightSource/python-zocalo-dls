@@ -33,8 +33,6 @@ def test_process_wrapper(mock_runner, mock_wrapper):
     payloadl = {"file_path": pl, "file_name": fl, "file_type": "Log"}
 
     mes = "result-individual-file"
-    mes_suc = "success"
-    payloadm = ""  
 
-    calls = [mock.call(mes_suc, payloadm), mock.call(mes, payload), mock.call(mes, payloadl)]
+    calls = [mock.call(mes, payload), mock.call(mes, payloadl)]
     mock_wrapper.send_to.assert_has_calls(calls)
