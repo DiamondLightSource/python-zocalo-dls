@@ -39,7 +39,8 @@ setup(
         "zocalo.wrappers": [
             # to add a wrapper:
             # "user_facing_wrapper_name = zocalo_dls.wrapper.mywrapper:WrapperClass"
-            "generic_process = zocalo_dls.wrapper.generic:ProcessRegisterWrapper"
+            "generic_process = zocalo_dls.wrapper.generic:ProcessRegisterWrapper",
+            "dawn_processing = zocalo_dls.wrapper.dawn:DawnWrapper",
         ],
     },
     install_requires=requirements,
