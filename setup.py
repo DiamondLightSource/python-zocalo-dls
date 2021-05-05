@@ -21,8 +21,6 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
@@ -39,7 +37,8 @@ setup(
         "zocalo.wrappers": [
             # to add a wrapper:
             # "user_facing_wrapper_name = zocalo_dls.wrapper.mywrapper:WrapperClass"
-            "generic_process = zocalo_dls.wrapper.generic:ProcessRegisterWrapper"
+            "generic_process = zocalo_dls.wrapper.generic:ProcessRegisterWrapper",
+            "dawn_processing = zocalo_dls.wrapper.dawn:DawnWrapper",
         ],
     },
     install_requires=requirements,
