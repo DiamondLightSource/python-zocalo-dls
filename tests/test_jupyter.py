@@ -1,6 +1,4 @@
 import mock
-from pathlib import Path
-
 from zocalo_dls.wrapper.jupyter import JupyterWrapper
 
 
@@ -22,37 +20,42 @@ def inner_test(mock_runner, mock_wrapper, tmp_path, use_override):
     Take target_file, template notebook, generate output notebook path, nxs path, html path
     pass off to script, fire messages
     """
-    wd = str(tmp_path / "wd")
-    rd = str(tmp_path / "rd")
-
-    Path(wd).mkdir()
-
-    Path(rd).mkdir()
+    wd = tmp_path / "wd"
+    rd = tmp_path / "rd"
+    wd.mkdir()
+    rd.mkdir()
 
     op = "{override_path}"
     out_run_dir = rd
     mod = "python/3"
 
     if use_override:
-        op = str(tmp_path)
+        op = tmp_path
         out_run_dir = op
         mod = "python/special"
 
-    processing_file = str(tmp_path / "notebook.ipynb")
-    open(processing_file, "w").close()
+    processing_file = tmp_path / "notebook.ipynb"
+    processing_file.touch()
 
     mock_runner.return_value = {"runtime": 5.0, "exitcode": 0}
 
     target_file = "/test/input.nxs"
-    result_path = out_run_dir + "/input_notebook.nxs"
-    notebook_path = out_run_dir + "/notebooks/input_notebook.ipynb"
-    html_path = out_run_dir + "/notebooks/input_notebook.html"
+    result_path = out_run_dir / "input_notebook.nxs"
+    notebook_path = out_run_dir / "notebooks/input_notebook.ipynb"
+    html_path = out_run_dir / "notebooks/input_notebook.html"
 
-    open(result_path, "w").close()
+    result_path.touch()
+    html_path.parent.mkdir(parents=True, exist_ok=True)
+    html_path.touch()
 
-    Path(html_path).parent.mkdir(parents=True, exist_ok=True)
-
-    open(html_path, "w").close()
+    # make paths strings here
+    result_path = str(result_path)
+    html_path = str(html_path)
+    notebook_path = str(notebook_path)
+    out_run_dir = str(out_run_dir)
+    wd = str(wd)
+    rd = str(rd)
+    op = str(op)
 
     command = [JupyterWrapper.run_script, mod, target_file, result_path, notebook_path]
 

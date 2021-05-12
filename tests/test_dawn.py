@@ -1,6 +1,5 @@
 import mock
 import json
-from pathlib import Path
 
 from zocalo_dls.wrapper.dawn import DawnWrapper
 
@@ -19,15 +18,17 @@ def test_dawn_wrapper_no_config(mock_runner, mock_wrapper, tmp_path):
 
 def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
 
-    wd = str(tmp_path / "wd")
-    rd = str(tmp_path / "rd")
+    wd = tmp_path / "wd"
+    rd = tmp_path / "rd"
+    wd.mkdir()
+    rd.mkdir()
 
-    Path(wd).mkdir()
+    processing_file = tmp_path / "chain.nxs"
+    processing_file.touch()
 
-    Path(rd).mkdir()
-
-    processing_file = str(tmp_path / "chain.nxs")
-    open(processing_file, "w").close()
+    wd = str(wd)
+    rd = str(rd)
+    processing_file = str(processing_file)
 
     expected = {
         "dataKey": "/entry/solstice_scan",

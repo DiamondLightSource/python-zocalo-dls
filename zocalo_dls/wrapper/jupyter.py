@@ -38,12 +38,12 @@ class JupyterWrapper(BaseWrapper):
 
         # determine run_directory
         rd = self._get_run_directory(ispyb_rd, override_path)
-        notebook, result_path = self._copy_notebook(ispyb_params, target_file, rd)
+        notebook, result_path, html_log = self._copy_notebook(
+            ispyb_params, target_file, rd
+        )
 
         mod_key = JupyterWrapper.param_prefix + JupyterWrapper.module
         mod = ispyb_params.get(mod_key, JupyterWrapper.default_module)
-
-        html_log = str(Path(notebook).with_suffix(".html"))
 
         command = [JupyterWrapper.run_script]
         command.append(mod)
@@ -88,14 +88,16 @@ class JupyterWrapper(BaseWrapper):
         if not os.path.isfile(note_path):
             raise RuntimeError("Notebook does not exist: %s" % note_path)
 
-        name = Path(target).stem + "_" + Path(note_path).name
-        note_dir = rd + "/notebooks/"
-        Path(note_dir).mkdir(parents=True, exist_ok=True)
-        fullpath = note_dir + name
+        prd = Path(rd)
+        name = Path(Path(target).stem + "_" + Path(note_path).name)
+        note_dir = prd / "notebooks"
+        note_dir.mkdir(parents=True, exist_ok=True)
+        fullpath = note_dir / name
         copyfile(note_path, fullpath)
 
-        nxspath = rd + "/" + Path(name).stem + ".nxs"
-        return fullpath, nxspath
+        nxspath = rd / name.with_suffix(".nxs")
+        html = fullpath.with_suffix(".html")
+        return str(fullpath), str(nxspath), str(html)
 
     def _get_run_directory(self, ispyb_rd, override):
 
