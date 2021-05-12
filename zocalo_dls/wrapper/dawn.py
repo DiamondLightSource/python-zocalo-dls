@@ -29,6 +29,7 @@ class DawnWrapper(BaseWrapper):
     dataset_path = "datasetPath"
     overwrite = "monitorForOverwrite"
     scan_rank = "scanRank"
+    payload_key = "target_file"
     timeout = "timeOut"
     readable = "readable"
     datakey = "dataKey"
@@ -69,7 +70,7 @@ class DawnWrapper(BaseWrapper):
         assert hasattr(self, "recwrap"), "No recipewrapper object found"
 
         payload = self.recwrap.payload
-        target_file = payload["target_file"]
+        target_file = payload[DawnWrapper.payload_key]
 
         jp = self.recwrap.recipe_step["job_parameters"]
 
@@ -117,7 +118,9 @@ class DawnWrapper(BaseWrapper):
             return
 
         if getattr(self, "recwrap", None):
-            self.recwrap.send_to("result-primary", {"target": result_path})
+            self.recwrap.send_to(
+                "result-primary", {DawnWrapper.payload_key: result_path}
+            )
 
     def _record_result(self, path, file_type):
         if os.path.isfile(path):

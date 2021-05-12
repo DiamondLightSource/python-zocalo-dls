@@ -27,8 +27,7 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
     Path(rd).mkdir()
 
     processing_file = str(tmp_path / "chain.nxs")
-    with open(processing_file, "w") as fh:
-        pass
+    open(processing_file, "w").close()
 
     expected = {
         "dataKey": "/entry/solstice_scan",
@@ -57,7 +56,7 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
         "stable",
     ]
 
-    payload = {"target_file": target_file}
+    payload = {DawnWrapper.payload_key: target_file}
     ispyb_parameters = {
         "dawn_version": "stable",
         "dawn_processingPath": processing_file,
@@ -85,8 +84,7 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
         out_dir = str(tmp_path)
         create_config(tmp_path, ispyb_parameters, expected, params)
 
-    with open(expected["outputFilePath"], "w") as fh:
-        pass
+    open(expected["outputFilePath"], "w").close()
 
     wrapper = DawnWrapper()
     wrapper.set_recipe_wrapper(mock_wrapper)
@@ -104,7 +102,7 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
     }
     m1 = "result-individual-file"
 
-    p2 = {"target": expected["outputFilePath"]}
+    p2 = {DawnWrapper.payload_key: expected["outputFilePath"]}
     m2 = "result-primary"
 
     calls = [mock.call(m1, p1), mock.call(m2, p2)]
