@@ -44,6 +44,7 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
         "scanRank": 2,
         "timeOut": 1800000,
         "xmx": "2048m",
+        "deleteProcessingFile": False,
     }
 
     mock_runner.return_value = {"runtime": 5.0, "exitcode": 0}
@@ -55,23 +56,25 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
         wd + "/dawn_config.json",
         "-version",
         "stable",
+        "-xmx",
+        expected["xmx"],
     ]
 
     payload = {DawnWrapper.payload_key: target_file}
     ispyb_parameters = {
-        "dawn_version": "stable",
-        "dawn_processingPath": processing_file,
-        "dawn_scanRank": str(expected["scanRank"]),
-        "dawn_timeOut": str(expected["timeOut"]),
-        "dawn_linkParentEntry": str(expected["linkParentEntry"]),
-        "dawn_publisherURI": str(expected["publisherURI"]),
+        "dawn_version": ["stable"],
+        "dawn_processingPath": [processing_file],
+        "dawn_scanRank": [str(expected["scanRank"])],
+        "dawn_timeOut": [str(expected["timeOut"])],
+        "dawn_linkParentEntry": [str(expected["linkParentEntry"])],
+        "dawn_publisherURI": [str(expected["publisherURI"])],
+        "dawn_datasetPath": [expected["datasetPath"]],
     }
 
     params = {
         "ispyb_parameters": ispyb_parameters,
         "working_directory": wd,
         "result_directory": rd,
-        "dataset_path": expected["datasetPath"] + "/data",
         "override_path": "{override_path}",
     }
 
@@ -121,4 +124,4 @@ def create_config(tmp_path, ispyb_parameters, expected, params):
     with open(conf_path, "w") as fh:
         json.dump(conf, fh)
 
-    ispyb_parameters["dawn_config"] = conf_path
+    ispyb_parameters["dawn_config"] = [conf_path]

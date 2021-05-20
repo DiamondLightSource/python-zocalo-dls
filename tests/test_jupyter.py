@@ -60,10 +60,10 @@ def inner_test(mock_runner, mock_wrapper, tmp_path, use_override):
     command = [JupyterWrapper.run_script, mod, target_file, result_path, notebook_path]
 
     payload = {JupyterWrapper.payload_key: target_file}
-    ispyb_parameters = {"jupyter_notebook": processing_file}
+    ispyb_parameters = {"jupyter_notebook": [processing_file]}
 
     if use_override:
-        ispyb_parameters["jupyter_module"] = mod
+        ispyb_parameters["jupyter_module"] = [mod]
 
     params = {
         "ispyb_parameters": ispyb_parameters,

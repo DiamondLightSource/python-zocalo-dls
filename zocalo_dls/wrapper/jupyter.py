@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from shutil import copyfile
 
-logger = logging.getLogger("DawnWrapper")
+logger = logging.getLogger("JupyterWrapper")
 
 
 class JupyterWrapper(BaseWrapper):
@@ -28,9 +28,8 @@ class JupyterWrapper(BaseWrapper):
         assert hasattr(self, "recwrap"), "No recipewrapper object found"
 
         payload = self.recwrap.payload
-        target_file = payload[JupyterWrapper.payload_key]
-
         jp = self.recwrap.recipe_step["job_parameters"]
+        target_file = self._get_target_file(payload, jp)
 
         ispyb_params = jp["ispyb_parameters"]
         ispyb_rd = jp["result_directory"]
@@ -43,7 +42,7 @@ class JupyterWrapper(BaseWrapper):
         )
 
         mod_key = JupyterWrapper.param_prefix + JupyterWrapper.module
-        mod = ispyb_params.get(mod_key, JupyterWrapper.default_module)
+        mod = ispyb_params.get(mod_key, [JupyterWrapper.default_module])[0]
 
         command = [JupyterWrapper.run_script]
         command.append(mod)
@@ -79,12 +78,25 @@ class JupyterWrapper(BaseWrapper):
         else:
             logger.warning("No file found at %s", path)
 
+    def _get_target_file(self, payload, jp):
+        if (
+            JupyterWrapper.payload_key not in payload
+            and JupyterWrapper.payload_key not in jp
+        ):
+            raise RuntimeError("Target file not in payload or job parameters")
+
+        if JupyterWrapper.payload_key in payload:
+            return payload[JupyterWrapper.payload_key]
+
+        if JupyterWrapper.payload_key in jp:
+            return jp[JupyterWrapper.payload_key]
+
     def _copy_notebook(self, params, target, rd):
         note_key = JupyterWrapper.param_prefix + JupyterWrapper.notebook
         if note_key not in params:
             raise RuntimeError("No notebook parameter registered")
 
-        note_path = params[note_key]
+        note_path = params[note_key][0]
         if not os.path.isfile(note_path):
             raise RuntimeError("Notebook does not exist: %s" % note_path)
 
