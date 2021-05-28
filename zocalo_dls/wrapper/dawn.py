@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from shutil import copyfile
 
+from . import wrapper_utils_dls as utils
+
 logger = logging.getLogger("DawnWrapper")
 
 
@@ -74,7 +76,7 @@ class DawnWrapper(BaseWrapper):
 
         payload = self.recwrap.payload
         jp = self.recwrap.recipe_step["job_parameters"]
-        target_file = self._get_target_file(payload, jp)
+        target_file = utils.get_target_file(payload, jp)
 
         ispyb_params = jp["ispyb_parameters"]
         ispyb_wd = jp["working_directory"]
@@ -111,38 +113,12 @@ class DawnWrapper(BaseWrapper):
         result = procrunner.run(command)
         logger.info("Command successful, took %.1f seconds", result["runtime"])
 
-        self._record_result(result_path, "Result")
-        self._broadcast_primary_result(result_path, not result["exitcode"])
+        utils.record_result(self, result_path, "Result")
+        utils.broadcast_primary_result(
+            self.recwrap, result_path, not result["exitcode"]
+        )
 
         return not result["exitcode"]
-
-    def _broadcast_primary_result(self, result_path, success):
-        if not success or not os.path.isfile(result_path):
-            return
-
-        if getattr(self, "recwrap", None):
-            self.recwrap.send_to(
-                "result-primary", {DawnWrapper.payload_key: result_path}
-            )
-
-    def _record_result(self, path, file_type):
-        if os.path.isfile(path):
-            p, f = os.path.split(path)
-            self.record_result_individual_file(
-                {"file_path": p, "file_name": f, "file_type": file_type}
-            )
-        else:
-            logger.warning("No file found at %s", path)
-
-    def _get_target_file(self, payload, jp):
-        if DawnWrapper.payload_key not in payload and DawnWrapper.payload_key not in jp:
-            raise RuntimeError("Target file not in payload or job parameters")
-
-        if DawnWrapper.payload_key in payload:
-            return payload[DawnWrapper.payload_key]
-
-        if DawnWrapper.payload_key in jp:
-            return jp[DawnWrapper.payload_key]
 
     def _load_config(self, config_path, config):
 
