@@ -1,6 +1,5 @@
 import mock
 import json
-from pathlib import Path
 
 from zocalo_dls.wrapper.dawn import DawnWrapper
 
@@ -19,16 +18,17 @@ def test_dawn_wrapper_no_config(mock_runner, mock_wrapper, tmp_path):
 
 def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
 
-    wd = str(tmp_path / "wd")
-    rd = str(tmp_path / "rd")
+    wd = tmp_path / "wd"
+    rd = tmp_path / "rd"
+    wd.mkdir()
+    rd.mkdir()
 
-    Path(wd).mkdir()
+    processing_file = tmp_path / "chain.nxs"
+    processing_file.touch()
 
-    Path(rd).mkdir()
-
-    processing_file = str(tmp_path / "chain.nxs")
-    with open(processing_file, "w") as fh:
-        pass
+    wd = str(wd)
+    rd = str(rd)
+    processing_file = str(processing_file)
 
     expected = {
         "dataKey": "/entry/solstice_scan",
@@ -44,6 +44,7 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
         "scanRank": 2,
         "timeOut": 1800000,
         "xmx": "2048m",
+        "deleteProcessingFile": False,
     }
 
     mock_runner.return_value = {"runtime": 5.0, "exitcode": 0}
@@ -55,23 +56,25 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
         wd + "/dawn_config.json",
         "-version",
         "stable",
+        "-xmx",
+        expected["xmx"],
     ]
 
-    payload = {"target_file": target_file}
+    payload = {DawnWrapper.payload_key: target_file}
     ispyb_parameters = {
-        "dawn_version": "stable",
-        "dawn_processingPath": processing_file,
-        "dawn_scanRank": str(expected["scanRank"]),
-        "dawn_timeOut": str(expected["timeOut"]),
-        "dawn_linkParentEntry": str(expected["linkParentEntry"]),
-        "dawn_publisherURI": str(expected["publisherURI"]),
+        "dawn_version": ["stable"],
+        "dawn_processingPath": [processing_file],
+        "dawn_scanRank": [str(expected["scanRank"])],
+        "dawn_timeOut": [str(expected["timeOut"])],
+        "dawn_linkParentEntry": [str(expected["linkParentEntry"])],
+        "dawn_publisherURI": [str(expected["publisherURI"])],
+        "dawn_datasetPath": [expected["datasetPath"]],
     }
 
     params = {
         "ispyb_parameters": ispyb_parameters,
         "working_directory": wd,
         "result_directory": rd,
-        "dataset_path": expected["datasetPath"] + "/data",
         "override_path": "{override_path}",
     }
 
@@ -85,8 +88,7 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
         out_dir = str(tmp_path)
         create_config(tmp_path, ispyb_parameters, expected, params)
 
-    with open(expected["outputFilePath"], "w") as fh:
-        pass
+    open(expected["outputFilePath"], "w").close()
 
     wrapper = DawnWrapper()
     wrapper.set_recipe_wrapper(mock_wrapper)
@@ -104,7 +106,7 @@ def inner_process_wrapper_run(mock_runner, mock_wrapper, tmp_path, use_config):
     }
     m1 = "result-individual-file"
 
-    p2 = {"target": expected["outputFilePath"]}
+    p2 = {DawnWrapper.payload_key: expected["outputFilePath"]}
     m2 = "result-primary"
 
     calls = [mock.call(m1, p1), mock.call(m2, p2)]
@@ -122,4 +124,4 @@ def create_config(tmp_path, ispyb_parameters, expected, params):
     with open(conf_path, "w") as fh:
         json.dump(conf, fh)
 
-    ispyb_parameters["dawn_config"] = conf_path
+    ispyb_parameters["dawn_config"] = [conf_path]

@@ -38,7 +38,9 @@ setup(
             # to add a wrapper:
             # "user_facing_wrapper_name = zocalo_dls.wrapper.mywrapper:WrapperClass"
             "generic_process = zocalo_dls.wrapper.generic:ProcessRegisterWrapper",
+            "target_process = zocalo_dls.wrapper.generic:TargetProcessRegisterWrapper",
             "dawn_processing = zocalo_dls.wrapper.dawn:DawnWrapper",
+            "jupyter_processing = zocalo_dls.wrapper.jupyter:JupyterWrapper",
         ],
     },
     install_requires=requirements,

@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from shutil import copyfile
 
+from . import wrapper_utils_dls as utils
+
 logger = logging.getLogger("DawnWrapper")
 
 
@@ -29,12 +31,14 @@ class DawnWrapper(BaseWrapper):
     dataset_path = "datasetPath"
     overwrite = "monitorForOverwrite"
     scan_rank = "scanRank"
+    payload_key = "target_file"
     timeout = "timeOut"
     readable = "readable"
     datakey = "dataKey"
     link_parent = "linkParentEntry"
     publisher = "publisherURI"
     output_file = "outputFilePath"
+    delete_file = "deleteProcessingFile"
 
     default_version = "stable"
 
@@ -50,6 +54,7 @@ class DawnWrapper(BaseWrapper):
         datakey,
         link_parent,
         publisher,
+        delete_file,
     }
 
     defaults = {
@@ -60,6 +65,7 @@ class DawnWrapper(BaseWrapper):
         link_parent: True,
         overwrite: False,
         datakey: "/entry/solstice_scan",
+        delete_file: False,
     }
 
     # things we cant sensibly default or ignore
@@ -69,22 +75,20 @@ class DawnWrapper(BaseWrapper):
         assert hasattr(self, "recwrap"), "No recipewrapper object found"
 
         payload = self.recwrap.payload
-        target_file = payload["target_file"]
-
         jp = self.recwrap.recipe_step["job_parameters"]
+        target_file = utils.get_target_file(payload, jp)
 
         ispyb_params = jp["ispyb_parameters"]
         ispyb_wd = jp["working_directory"]
         ispyb_rd = jp["result_directory"]
-        ispyb_dspath = jp["dataset_path"]
         override_path = jp["override_path"]
 
         config = dict(DawnWrapper.defaults)
 
         if DawnWrapper.config_name in ispyb_params:
-            self._load_config(ispyb_params[DawnWrapper.config_name], config)
+            self._load_config(ispyb_params[DawnWrapper.config_name][0], config)
 
-        self._update_config(config, ispyb_params, target_file, ispyb_dspath)
+        self._update_config(config, ispyb_params, target_file)
 
         self._validate_config(config)
 
@@ -96,37 +100,25 @@ class DawnWrapper(BaseWrapper):
 
         v = DawnWrapper.param_prefix + DawnWrapper.version
 
-        version = ispyb_params.get(v, DawnWrapper.default_version)
+        version = ispyb_params.get(v, [DawnWrapper.default_version])[0]
 
         command = [DawnWrapper.run_script]
         command.append("-path")
         command.append(config_path)
         command.append("-version")
         command.append(version)
+        command.append("-xmx")
+        command.append(config[DawnWrapper.memory])
         logger.info("Command: %s", " ".join(command))
         result = procrunner.run(command)
         logger.info("Command successful, took %.1f seconds", result["runtime"])
 
-        self._record_result(result_path, "Result")
-        self._broadcast_primary_result(result_path, not result["exitcode"])
+        utils.record_result(self, result_path, "Result")
+        utils.broadcast_primary_result(
+            self.recwrap, result_path, not result["exitcode"]
+        )
 
         return not result["exitcode"]
-
-    def _broadcast_primary_result(self, result_path, success):
-        if not success or not os.path.isfile(result_path):
-            return
-
-        if getattr(self, "recwrap", None):
-            self.recwrap.send_to("result-primary", {"target": result_path})
-
-    def _record_result(self, path, file_type):
-        if os.path.isfile(path):
-            p, f = os.path.split(path)
-            self.record_result_individual_file(
-                {"file_path": p, "file_name": f, "file_type": file_type}
-            )
-        else:
-            logger.warning("No file found at %s", path)
 
     def _load_config(self, config_path, config):
 
@@ -137,16 +129,13 @@ class DawnWrapper(BaseWrapper):
             data = json.load(fh)
             config.update(data)
 
-    def _update_config(self, config, ispyb_config, target_file, dspath):
+    def _update_config(self, config, ispyb_config, target_file):
         config[DawnWrapper.target] = target_file
-
-        if DawnWrapper.dataset_path not in config:
-            config[DawnWrapper.dataset_path] = dspath[: dspath.rfind("/")]
 
         for k in DawnWrapper.config_vals:
             name = DawnWrapper.param_prefix + k
             if name in ispyb_config:
-                val = ispyb_config[name]
+                val = ispyb_config[name][0]
                 out = val
                 if val == "False":
                     out = False
