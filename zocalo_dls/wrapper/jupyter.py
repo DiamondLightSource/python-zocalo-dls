@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from shutil import copyfile
 
-logger = logging.getLogger("JupyterWrapper")
+logger = logging.getLogger("zocalo_dls.wrapper.jupyter")
 
 
 class JupyterWrapper(BaseWrapper):
