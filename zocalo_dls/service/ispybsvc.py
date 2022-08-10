@@ -22,7 +22,7 @@ class ISPyB(CommonService):
 
     def initializing(self):
         """Subscribe the ISPyB connector queue. Received messages must be
-       acknowledged. Prepare ISPyB database connection."""
+        acknowledged. Prepare ISPyB database connection."""
         self.log.info("ISPyB connector using ispyb v%s", ispyb.__version__)
         self.ispyb = ispyb.open("/dls_sw/apps/zocalo/secrets/credentials-ispyb-sp.cfg")
         self.log.debug("ISPyB connector starting")
@@ -400,8 +400,10 @@ class ISPyB(CommonService):
         output_lattice_params["screening_output_id"] = parameters("screening_output_id")
         self.log.info("output_lattice_params: %s", output_lattice_params)
         try:
-            screeningOutputLatticeId = self.ispyb.mx_screening.insert_screening_output_lattice(
-                list(output_lattice_params.values())
+            screeningOutputLatticeId = (
+                self.ispyb.mx_screening.insert_screening_output_lattice(
+                    list(output_lattice_params.values())
+                )
             )
             assert screeningOutputLatticeId is not None
         except (ispyb.ISPyBException, AssertionError) as e:
@@ -448,8 +450,10 @@ class ISPyB(CommonService):
         wedge_params["wedgenumber"] = parameters("wedgenumber") or "1"
         self.log.info("wedge_params: %s", wedge_params)
         try:
-            screeningStrategyWedgeId = self.ispyb.mx_screening.insert_screening_strategy_wedge(
-                list(wedge_params.values())
+            screeningStrategyWedgeId = (
+                self.ispyb.mx_screening.insert_screening_strategy_wedge(
+                    list(wedge_params.values())
+                )
             )
             assert screeningStrategyWedgeId is not None
         except (ispyb.ISPyBException, AssertionError) as e:
@@ -476,8 +480,10 @@ class ISPyB(CommonService):
         sub_wedge_params["subwedgenumber"] = "1"
         self.log.info("sub_wedge_params: %s", sub_wedge_params)
         try:
-            screeningStrategySubWedgeId = self.ispyb.mx_screening.insert_screening_strategy_sub_wedge(
-                list(sub_wedge_params.values())
+            screeningStrategySubWedgeId = (
+                self.ispyb.mx_screening.insert_screening_strategy_sub_wedge(
+                    list(sub_wedge_params.values())
+                )
             )
             assert screeningStrategySubWedgeId is not None
         except (ispyb.ISPyBException, AssertionError) as e:
@@ -497,16 +503,16 @@ class ISPyB(CommonService):
     def do_upsert_integration(self, parameters, **kwargs):
         """Insert or update an AutoProcIntegration record.
 
-       Parameters, amongst others defined by the ISPyB API:
-       :dcid: related DataCollectionID
-       :integration_id: AutoProcIntegrationID, if defined will UPDATE otherwise INSERT
-       :program_id: related AutoProcProgramID
-       :scaling_id: related AutoProcScalingID
+        Parameters, amongst others defined by the ISPyB API:
+        :dcid: related DataCollectionID
+        :integration_id: AutoProcIntegrationID, if defined will UPDATE otherwise INSERT
+        :program_id: related AutoProcProgramID
+        :scaling_id: related AutoProcScalingID
 
-       :returns: AutoProcIntegrationID
+        :returns: AutoProcIntegrationID
 
-       ISPyB-API call: upsert_integration
-    """
+        ISPyB-API call: upsert_integration
+        """
         self.log.info(
             "Saving integration result record (%s) for DCID %s and APPID %s",
             parameters("integration_id") or "new",
@@ -591,16 +597,16 @@ class ISPyB(CommonService):
     def do_insert_scaling(self, parameters, **kwargs):
         """Write a 3-column scaling statistics table to the database.
 
-       Parameters:
-       :autoproc_id: AutoProcId, key to AutoProc table
-       :outerShell: dictionary containing scaling statistics
-       :innerShell: dictionary containing scaling statistics
-       :overall: dictionary containing scaling statistics
+        Parameters:
+        :autoproc_id: AutoProcId, key to AutoProc table
+        :outerShell: dictionary containing scaling statistics
+        :innerShell: dictionary containing scaling statistics
+        :overall: dictionary containing scaling statistics
 
-       :returns: AutoProcScalingId
+        :returns: AutoProcScalingId
 
-       ISPyB-API call: insert_scaling
-    """
+        ISPyB-API call: insert_scaling
+        """
         autoProcId = parameters("autoproc_id")
         stats = {
             "outerShell": self.ispyb.mx_processing.get_outer_shell_scaling_params(),
@@ -683,14 +689,14 @@ class ISPyB(CommonService):
 
     def do_multipart_message(self, rw, message, **kwargs):
         """The multipart_message command allows the recipe or client to specify a
-       multi-stage operation. With this you can process a list of API calls,
-       for example
-         * do_upsert_processing
-         * do_insert_scaling
-         * do_upsert_integration
-       Each API call may have a return value that can be stored.
-       Multipart_message takes care of chaining and checkpointing to make the
-       overall call near-ACID compliant."""
+        multi-stage operation. With this you can process a list of API calls,
+        for example
+          * do_upsert_processing
+          * do_insert_scaling
+          * do_upsert_integration
+        Each API call may have a return value that can be stored.
+        Multipart_message takes care of chaining and checkpointing to make the
+        overall call near-ACID compliant."""
 
         if not rw.environment.get("has_recipe_wrapper", True):
             self.log.error(
