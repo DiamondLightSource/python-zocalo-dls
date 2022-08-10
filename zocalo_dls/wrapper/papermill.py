@@ -7,16 +7,18 @@ logger = logging.getLogger("zocalo_dls.wrapper.papermill")
 
 
 class PapermillWrapper(JupyterWrapper):
-    def _inject_parameters(self, ispyb_params, target, result, notebook, prefix_length):
+    def _inject_parameters(self, ispyb_params, target, result, notebook, prefix):
         for_insertion = {}
+        prefix_length = len(prefix)
         for k, v in ispyb_params.items():
-            k = k[prefix_length:]
-            for_insertion[k] = self.str_to_val(v[0])
+
+            if k.startswith(prefix):
+                k = k[prefix_length:]
+                for_insertion[k] = self.str_to_val(v[0])
 
         for_insertion["inpath"] = target
         for_insertion["outpath"] = target
 
-        print(for_insertion)
         pm.execute_notebook(
             notebook,
             notebook,

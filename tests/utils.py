@@ -145,6 +145,9 @@ def build_and_wrap_notebook(
 
     if jupyter_params["namespace"]:
         params["namespace"] = jupyter_params["namespace"]
+        print(params["namespace"])
+        # test other namespace parameters dont leak in
+        ispyb_parameters["jupyter_othernamespace_badparam"] = "badparam"
 
     mock_runner.return_value = {"runtime": 5.0, "exitcode": 0}
 

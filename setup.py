@@ -41,6 +41,7 @@ setup(
             "target_process = zocalo_dls.wrapper.generic:TargetProcessRegisterWrapper",
             "dawn_processing = zocalo_dls.wrapper.dawn:DawnWrapper",
             "jupyter_processing = zocalo_dls.wrapper.jupyter:JupyterWrapper",
+            "papermill_processing = zocalo_dls.wrapper.papermill:PapermillWrapper",
         ],
     },
     install_requires=requirements,

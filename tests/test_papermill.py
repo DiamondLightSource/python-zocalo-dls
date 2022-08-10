@@ -47,3 +47,4 @@ def test_papermill_wrapper(mock_runner, mock_wrapper, tmp_path, papermill_params
     assert "z = 2.2" in code
     assert "inpath" in code
     assert "outpath" in code
+    assert "badparam" not in code

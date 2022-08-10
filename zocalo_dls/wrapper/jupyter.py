@@ -53,7 +53,7 @@ class JupyterWrapper(BaseWrapper):
             del ispyb_params[mod_key]
         del ispyb_params[note_key]
         self._inject_parameters(
-            ispyb_params, target_file, result_path, notebook, len(prefix)
+            ispyb_params, target_file, result_path, notebook, prefix
         )
 
         command = [self._get_run_script()]
@@ -130,7 +130,7 @@ class JupyterWrapper(BaseWrapper):
     def _get_run_script(self):
         return JupyterWrapper.run_script
 
-    def _inject_parameters(self, ispyb_params, target, result, notebook, prefix_length):
+    def _inject_parameters(self, ispyb_params, target, result, notebook, prefix):
         nb = nbformat.read(notebook, nbformat.NO_CONVERT)
         nb["cells"][0]["source"] = 'inpath = "{}"'.format(target)
         nb["cells"][1]["source"] = 'outpath = "{}"'.format(result)
