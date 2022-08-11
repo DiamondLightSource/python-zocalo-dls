@@ -17,7 +17,7 @@ class PapermillWrapper(JupyterWrapper):
                 for_insertion[k] = self.str_to_val(v[0])
 
         for_insertion["inpath"] = target
-        for_insertion["outpath"] = target
+        for_insertion["outpath"] = result
 
         pm.execute_notebook(
             notebook,
