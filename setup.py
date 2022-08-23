@@ -12,6 +12,7 @@ with open("HISTORY.rst") as history_file:
 requirements = ["ispyb", "procrunner", "zocalo"]
 setup_requirements = []
 test_requirements = ["mock", "pytest"]
+jupyter_requirements = ["nbformat", "papermill"]
 
 setup(
     author="Diamond Light Source",
@@ -41,6 +42,7 @@ setup(
             "target_process = zocalo_dls.wrapper.generic:TargetProcessRegisterWrapper",
             "dawn_processing = zocalo_dls.wrapper.dawn:DawnWrapper",
             "jupyter_processing = zocalo_dls.wrapper.jupyter:JupyterWrapper",
+            "papermill_processing = zocalo_dls.wrapper.papermill:PapermillWrapper",
         ],
     },
     install_requires=requirements,
@@ -53,6 +55,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite="tests",
     tests_require=test_requirements,
+    extras_require={"Jupyter": jupyter_requirements},
     url="https://github.com/DiamondLightSource/python-zocalo-dls",
     version="0.3.0",
     zip_safe=False,

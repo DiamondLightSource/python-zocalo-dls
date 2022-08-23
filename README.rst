@@ -10,8 +10,8 @@ Diamond-specific Zocalo Tools
            :target: https://pypi.python.org/pypi/zocalo-dls
            :alt: BSD license
 
-.. image:: https://travis-ci.com/DiamondLightSource/python-zocalo-dls.svg?branch=master
-           :target: https://travis-ci.com/DiamondLightSource/python-zocalo-dls
+.. image:: https://github.com/DiamondLightSource/python-zocalo-dls/actions/workflows/python-package.yml/badge.svg
+           :target: https://github.com/DiamondLightSource/python-zocalo-dls/actions/workflows/python-package.yml
            :alt: Build status
 
 .. image:: https://img.shields.io/lgtm/grade/python/g/DiamondLightSource/python-zocalo-dls.svg?logo=lgtm&logoWidth=18
@@ -48,8 +48,7 @@ Much of the data analysis work at Diamond is directed by and presented to users 
 Therefore, we provide some central services which enable cooperation between the data analysis pipelines and the ISPyB
 database at Diamond.
 
-The code in this repository is actively used for processing of `MX data <https://www.diamond.ac.uk/Science/Research/Techniques/Diffraction/MX.htm>`_
-at Diamond.
+The code in this repository is actively used for processing of many different experiments at Diamond.
 The hope is that soon it will be used across many areas of science here and perhaps elsewhere.
 
 Please take this code inspiration for how to implement Zocalo at other facilities.

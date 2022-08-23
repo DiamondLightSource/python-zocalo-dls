@@ -4,6 +4,7 @@ import procrunner
 import logging
 from pathlib import Path
 from shutil import copyfile
+import nbformat
 
 logger = logging.getLogger("zocalo_dls.wrapper.jupyter")
 
@@ -17,7 +18,7 @@ class JupyterWrapper(BaseWrapper):
 
     """
 
-    run_script = "/dls_sw/apps/wrapper-scripts/jupyter_autoprocessing.sh"
+    run_script = "/dls_sw/apps/wrapper-scripts/execute_notebook.sh"
     param_prefix = "jupyter_"
     notebook = "notebook"
     module = "module"
@@ -31,23 +32,32 @@ class JupyterWrapper(BaseWrapper):
         jp = self.recwrap.recipe_step["job_parameters"]
         target_file = self._get_target_file(payload, jp)
 
-        ispyb_params = jp["ispyb_parameters"]
+        ispyb_params = jp["ispyb_parameters"].copy()
         ispyb_rd = jp["result_directory"]
         override_path = jp["override_path"]
 
-        # determine run_directory
+        prefix = self._get_prefix(jp)
+
         rd = self._get_run_directory(ispyb_rd, override_path)
+
+        note_key = prefix + JupyterWrapper.notebook
         notebook, result_path, html_log = self._copy_notebook(
-            ispyb_params, target_file, rd
+            ispyb_params, target_file, rd, note_key
         )
 
-        mod_key = JupyterWrapper.param_prefix + JupyterWrapper.module
+        mod_key = prefix + JupyterWrapper.module
         mod = ispyb_params.get(mod_key, [JupyterWrapper.default_module])[0]
 
-        command = [JupyterWrapper.run_script]
+        # remove non execution parameters before notebook injection
+        if mod_key in ispyb_params:
+            del ispyb_params[mod_key]
+        del ispyb_params[note_key]
+        self._inject_parameters(
+            ispyb_params, target_file, result_path, notebook, prefix
+        )
+
+        command = [self._get_run_script()]
         command.append(mod)
-        command.append(target_file)
-        command.append(result_path)
         command.append(notebook)
         logger.info("Command: %s", " ".join(command))
         result = procrunner.run(command)
@@ -91,8 +101,7 @@ class JupyterWrapper(BaseWrapper):
         if JupyterWrapper.payload_key in jp:
             return jp[JupyterWrapper.payload_key]
 
-    def _copy_notebook(self, params, target, rd):
-        note_key = JupyterWrapper.param_prefix + JupyterWrapper.notebook
+    def _copy_notebook(self, params, target, rd, note_key):
         if note_key not in params:
             raise RuntimeError("No notebook parameter registered")
 
@@ -117,3 +126,20 @@ class JupyterWrapper(BaseWrapper):
             return override
 
         return ispyb_rd
+
+    def _get_run_script(self):
+        return JupyterWrapper.run_script
+
+    def _inject_parameters(self, ispyb_params, target, result, notebook, prefix):
+        nb = nbformat.read(notebook, nbformat.NO_CONVERT)
+        nb["cells"][0]["source"] = 'inpath = "{}"'.format(target)
+        nb["cells"][1]["source"] = 'outpath = "{}"'.format(result)
+        nbformat.write(nb, notebook)
+
+    def _get_prefix(self, jp):
+        db_namespace = jp.get("namespace", "")
+
+        if db_namespace:
+            db_namespace = db_namespace + "_"
+
+        return JupyterWrapper.param_prefix + db_namespace
