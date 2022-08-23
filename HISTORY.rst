@@ -2,6 +2,12 @@
 History
 =======
 
+0.3.0 (2019-07-30)
+------------------
+
+- Add wrapper to run DAWN
+- Add wrapper to run Jupyter notebooks
+
 0.2.0 (2019-07-30)
 ------------------
 
