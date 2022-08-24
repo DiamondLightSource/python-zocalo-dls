@@ -57,6 +57,6 @@ setup(
     tests_require=test_requirements,
     extras_require={"Jupyter": jupyter_requirements},
     url="https://github.com/DiamondLightSource/python-zocalo-dls",
-    version="0.3.0",
+    version="0.4.0",
     zip_safe=False,
 )
